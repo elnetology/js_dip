@@ -15,8 +15,7 @@ class Vector {
     }
 
     times(multiply) {
-        let vec = new Vector(this.x * multiply, this.y * multiply);
-        return vec;
+        return new Vector(this.x * multiply, this.y * multiply);
     }
 }
 
@@ -70,11 +69,11 @@ class Actor {
 
 class Level {
     constructor(grid = [], actors = []) {
-        this.grid = grid;
-        this.actors = actors;
+        this.grid = grid.slice();
+        this.actors = actors.slice();
         this.status = null;
         this.finishDelay = 1;
-        this.width = Math.max(0,...this.grid.map(element => element.length));
+        this.width = Math.max(0, ...this.grid.map(element => element.length));
         this.height = this.grid.length;
         this.player = this.actors.find(act => act.type === "player");
     }
@@ -100,7 +99,7 @@ class Level {
         bottom = Math.ceil(whereVec.y + sizeVec.y);
         top = Math.floor(whereVec.y);
 
-        if ((right > this.width) || (left < 0) || (bottom < 0) || (top<0)) {
+        if ((right > this.width) || (left < 0) || (bottom < 0) || (top < 0)) {
             return 'wall';
         }
         if (bottom > this.height) {
@@ -123,12 +122,7 @@ class Level {
     }
 
     noMoreActors(type) {
-        if (this.actors.length > 0) {
-            if (this.actors.find(act => act.type === type)) {
-                return false;
-            }
-        }
-        return true
+        return !this.actors.some(act => act.type === type);
     }
 
     playerTouched(type, actor) {
@@ -136,7 +130,7 @@ class Level {
             this.status = 'lost';
         } else if (type === 'coin') {
             this.actors.splice(this.actors.findIndex(act => act === actor), 1);
-            if (!this.actors.find(act => act === actor)) {
+            if (this.noMoreActors('coin')) {
                 this.status = 'won';
             }
         }
@@ -179,7 +173,7 @@ class LevelParser {
             arrayPlan.forEach((line, y) => {
                 line.split('').forEach((symbol, x) => {
                     if (typeof this.dictionary[symbol] === 'function') {
-                        let actor = new this.dictionary[symbol](new Vector (x,y));
+                        let actor = new this.dictionary[symbol](new Vector(x, y));
                         if (actor instanceof Actor) {
                             arrayObj.push(actor);
                         }
@@ -255,7 +249,7 @@ class FireRain extends Fireball {
 }
 
 class Coin extends Actor {
-    constructor(vecPos= new Vector(0,0)) {
+    constructor(vecPos = new Vector(0, 0)) {
         let pos = vecPos.plus(new Vector(0.2, 0.1));
         super(pos, new Vector(0.6, 0.6));
         this.springSpeed = 8;
