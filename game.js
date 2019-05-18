@@ -127,8 +127,10 @@ class Level {
 
     playerTouched(type, actor) {
         if (type === 'lava' || type === 'fireball') {
-            this.status = 'lost';
-        } else if (type === 'coin') {
+            if (this.status !== 'won') {
+                this.status = 'lost';
+            }
+        } else if (type === 'coin' && this.status !== 'lost') {
             this.actors.splice(this.actors.findIndex(act => act === actor), 1);
             if (this.noMoreActors('coin')) {
                 this.status = 'won';
@@ -290,4 +292,3 @@ class Player extends Actor {
         return 'player';
     }
 }
-
